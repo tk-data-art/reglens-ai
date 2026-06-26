@@ -1,4 +1,5 @@
 
+import ApiGate from "./components/ApiGate";
 import ApiKeySettings from "./components/ApiKeySettings";
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { 
@@ -44,15 +45,19 @@ import {
   Percent
 } from 'lucide-react';
 
-const apiKey = ""; // API key is provided by the execution environment
-
-// Secure environment variable configuration
-const GEMINI_API_KEY = apiKey || "";
+const GEMINI_API_KEY = localStorage.getItem("reglens_api_key") || "";
 
 // Architecture configured for Flash and Flash-Lite integration.
 const MODELS = {
-  EXTRACTION: 'gemini-2.5-flash-preview-09-2025', 
-  AGENT: 'gemini-2.5-flash-preview-09-2025'       
+  DEFAULT: "gemini-3.1-flash-lite",
+
+  EXTRACTION: "gemini-3.1-flash-lite",
+  AGENT: "gemini-3.1-flash-lite",
+
+  ANALYST: "gemini-3.1-flash-lite",
+  FINDINGS: "gemini-3.1-flash-lite",
+  REGULATORY: "gemini-3.1-flash-lite",
+  COPILOT: "gemini-3.1-flash-lite"
 };
 
 // Helper for API calls with exponential backoff and rate limit handling
@@ -1744,6 +1749,8 @@ export default function App() {
   const [chatMessages, setChatMessages] = useState([]);
   const [chatInput, setChatInput] = useState("");
   const [isChatting, setIsChatting] = useState(false);
+  const [apiConfigured, setApiConfigured] = useState(
+  !!localStorage.getItem("reglens_api_key"));
   const chatEndRef = useRef(null);
 
   useEffect(() => {
@@ -1927,7 +1934,10 @@ export default function App() {
   }, []);
 
   const generateOverview = async (text) => {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODELS.EXTRACTION}:generateContent?key=${GEMINI_API_KEY}`;
+    const apiKey = localStorage.getItem("reglens_api_key");
+
+const url =
+`https://generativelanguage.googleapis.com/v1beta/models/${MODELS.AGENT}:generateContent?key=${apiKey}`;
     const payload = {
       contents: [{ parts: [{ text: `You are an expert corporate financial analyst. Analyze the following document text to extract the executive summary and company metadata details.
       
@@ -1980,7 +1990,10 @@ export default function App() {
   };
 
   const extractFinancialData = async (text) => {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODELS.EXTRACTION}:generateContent?key=${GEMINI_API_KEY}`;
+    const apiKey = localStorage.getItem("reglens_api_key");
+
+const url =
+`https://generativelanguage.googleapis.com/v1beta/models/${MODELS.AGENT}:generateContent?key=${apiKey}`;
     const payload = {
       contents: [{
         parts: [{
@@ -2093,7 +2106,10 @@ export default function App() {
   };
 
   const runAnalystAgent = async (finData) => {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODELS.AGENT}:generateContent?key=${GEMINI_API_KEY}`;
+    const apiKey = localStorage.getItem("reglens_api_key");
+
+const url =
+`https://generativelanguage.googleapis.com/v1beta/models/${MODELS.AGENT}:generateContent?key=${apiKey}`;
     const payload = {
       contents: [{
         parts: [{
@@ -2110,7 +2126,9 @@ export default function App() {
   };
 
   const runFindingsAgent = async (finData, analystResults) => {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODELS.AGENT}:generateContent?key=${GEMINI_API_KEY}`;
+    const apiKey = localStorage.getItem("reglens_api_key");
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODELS.AGENT}:generateContent?key=${apiKey}`;
+
     const payload = {
       contents: [{
         parts: [{
@@ -2128,7 +2146,8 @@ export default function App() {
   };
 
   const runRegulatoryAgent = async (finData, analystResults, findings) => {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODELS.AGENT}:generateContent?key=${GEMINI_API_KEY}`;
+    const apiKey = localStorage.getItem("reglens_api_key");
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODELS.AGENT}:generateContent?key=${apiKey}`;
     const payload = {
       contents: [{
         parts: [{
@@ -2153,8 +2172,9 @@ export default function App() {
     setChatMessages(newHistory);
     setIsChatting(true);
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODELS.AGENT}:generateContent?key=${GEMINI_API_KEY}`;
-    
+    const apiKey = localStorage.getItem("reglens_api_key");
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODELS.AGENT}:generateContent?key=${apiKey}`;
+
     const structuredKnowledge = JSON.stringify(knowledgeStore);
 
     const geminiContents = [
@@ -2242,6 +2262,16 @@ export default function App() {
     setStatus('idle');
     setExtractionStats({ statements: [], pages: [], totalPages: 0, metricsStatus: 'pending', agentStatus: 'pending', findingsStatus: 'pending', regulatoryStatus: 'pending', statementCoverage: null });
   }, []);
+  
+if (!apiConfigured) {
+  return (
+    <ApiGate
+      onConnected={() => {
+        setApiConfigured(true);
+      }}
+    />
+  );
+}
 
   return (
     <div className="min-h-screen bg-slate-50 flex font-sans selection:bg-blue-200">
