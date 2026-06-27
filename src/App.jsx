@@ -1,4 +1,5 @@
-
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import ApiGate from "./components/ApiGate";
 import ApiKeySettings from "./components/ApiKeySettings";
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
@@ -486,24 +487,25 @@ const StructuredChatResponse = React.memo(({ data, knowledgeStore }) => (
 const Sidebar = React.memo(() => (
   <div className="w-64 bg-slate-900 text-slate-300 flex flex-col h-screen fixed left-0 top-0 border-r border-slate-800">
     <div className="p-6 flex items-center gap-3 border-b border-slate-800">
-      <div className="bg-blue-600 p-2 rounded-lg text-white"><ShieldCheck size={24} /></div>
+      <div className="bg-gradient-to-br from-blue-600 to-indigo-600 p-2.5 rounded-xl text-white shadow-lg"><ShieldCheck size={24} /></div>
       <div>
-        <h1 className="text-xl font-bold text-white tracking-tight">FinSight <span className="text-blue-400">AI</span></h1>
-        <p className="text-[10px] text-slate-400 uppercase tracking-wider font-bold mt-0.5">Reporting Copilot</p>
-      </div>
+  <h1 className="text-xl font-bold text-white tracking-tight">
+    RegLens <span className="text-blue-500">AI</span>
+  </h1>
+  <p className="text-[10px] text-slate-400 uppercase tracking-[0.2em] font-bold mt-0.5">
+    Annual Report Intelligence
+  </p>
+</div>
     </div>
     <div className="p-4 flex-1">
-      <p className="text-xs uppercase font-semibold text-slate-500 mb-4 px-2 tracking-wider">Workspace</p>
+      <p className="text-xs uppercase font-semibold text-slate-500 mb-4 px-2 tracking-[0.2em]">
+  AI Workspace
+</p>
       <nav className="space-y-1">
-        <button className="w-full flex items-center gap-3 px-3 py-2.5 bg-blue-900/40 text-blue-400 rounded-md font-medium transition-colors">
-          <LayoutDashboard size={18} /> Copilot Dashboard
-        </button>
-        <button className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-slate-800 rounded-md font-medium transition-colors opacity-50 cursor-not-allowed">
-          <Briefcase size={18} /> Portfolio View
-        </button>
-        <button className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-slate-800 rounded-md font-medium transition-colors opacity-50 cursor-not-allowed">
-          <Building size={18} /> Entity Profiles
-        </button>
+        <button className="w-full flex items-center gap-3 px-3 py-2.5 bg-blue-900/40 text-blue-400 rounded-md font-semibold transition-colors">
+  <LayoutDashboard size={18} />
+  Executive Dashboard
+</button>
       </nav>
     </div>
     <div className="p-6 border-t border-slate-800 text-sm">
@@ -679,9 +681,35 @@ const DashboardView = React.memo(({
   knowledgeStore, extractionStats, resetApp, file, 
   chatMessages, chatInput, setChatInput, isChatting, submitMessage, handleSendMessage, chatEndRef 
 }) => {
+  const suggestedQuestions = [
+  {
+    icon: "📈",
+    text: "Summarize this annual report"
+  },
+  {
+    icon: "⚠️",
+    text: "What are the biggest financial risks?"
+  },
+  {
+    icon: "💰",
+    text: "Explain the company's profitability."
+  },
+  {
+    icon: "🏦",
+    text: "Analyze liquidity and cash flow."
+  },
+  {
+    icon: "📊",
+    text: "Evaluate the capital structure."
+  },
+  {
+    icon: "📉",
+    text: "Should investors be concerned?"
+  }
+];
   const [activeTab, setActiveTab] = useState('summary'); 
   const [selectedGraphNodeId, setSelectedGraphNodeId] = useState(null);
-  const [showDebug, setShowDebug] = useState(false);
+  
   const [graphZoom, setGraphZoom] = useState(1);
   const [graphFullscreen, setGraphFullscreen] = useState(false);
 
@@ -757,7 +785,7 @@ const DashboardView = React.memo(({
 
     // Dimensional parameters expanded by ~35-40% width to prevent crowding
     const canvasWidth = 820; 
-    const canvasHeight = 580; 
+    const canvasHeight = 750; 
     const layerSpacing = canvasHeight / layers.length;
 
     const nodesList = [];
@@ -915,9 +943,14 @@ const DashboardView = React.memo(({
   }, [selectedGraphNodeId, graphNodes, graphEdges, knowledgeStore, ratioAnalysis, summary]);
 
   return (
-    <div className="flex gap-6 h-[calc(100vh-6rem)] relative">
-      <div className={`flex flex-col overflow-hidden transition-all duration-300 ${activeTab === 'graph' ? 'w-full' : 'w-[55%] shrink-0'}`}>
-        
+    <div className="flex gap-6 h-[calc(100vh-6rem)] relative items-start">
+      <div
+  className={`flex flex-col overflow-hidden transition-all duration-300 h-full ${
+    activeTab === 'graph'
+      ? 'w-full'
+      : 'flex-1 min-w-0'
+  }`}
+>
         <div className="flex items-center justify-between mb-4 shrink-0">
           <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
             <BarChart3 className="text-blue-600" size={28} /> Analysis Results
@@ -933,11 +966,11 @@ const DashboardView = React.memo(({
             <button
               key={tab}
               onClick={() => { setActiveTab(tab); setSelectedGraphNodeId(null); }}
-              className={`px-4 py-3 text-sm font-semibold capitalize whitespace-nowrap transition-all border-b-2 flex items-center gap-2 ${
-                activeTab === tab 
-                  ? 'border-blue-600 text-blue-600' 
-                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
-              }`}
+              className={`px-3 py-2 text-[13px] font-semibold whitespace-nowrap transition-all border-b-2 flex items-center gap-1.5 ${
+  activeTab === tab
+    ? 'border-blue-600 text-blue-600'
+    : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+}`}
             >
               {tab === 'summary' ? 'Executive Summary' : 
                tab === 'graph' ? <><Network size={16} /> Financial Intelligence Map</> :
@@ -1038,7 +1071,7 @@ const DashboardView = React.memo(({
                             { label: 'Cash Flow Statement', data: extractionStats.statementCoverage.cashFlow }
                           ].map((item, idx) => (
                             <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-100 gap-3">
-                              <div className="flex-1">
+                              <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
                                 <p className="font-bold text-slate-800 text-sm">{item.label}</p>
                                 {item.data.status !== 'Found' && (
                                   <p className="text-xs text-slate-500 mt-1 leading-relaxed max-w-lg">{item.data.reason}</p>
@@ -1087,7 +1120,7 @@ const DashboardView = React.memo(({
 
               {/* --- TAB: REDESIGNED HIERARCHICAL FINANCIAL INTELLIGENCE MAP --- */}
               {activeTab === 'graph' && (
-                <div className={`flex flex-col gap-4 border border-slate-200 bg-slate-50/50 rounded-2xl p-6 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300 relative ${graphFullscreen ? 'fixed inset-0 bg-slate-50 z-50 p-8 h-screen' : 'h-[680px]'}`}>
+                <div className={`flex flex-col gap-4 border border-slate-200 bg-slate-50/50 rounded-2xl p-6 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300 relative ${graphFullscreen ? 'fixed inset-0 bg-slate-50 z-50 p-8 h-screen' : 'h-[760px]'}`}>
                   
                   {/* Dashboard / Section Header */}
                   <div className="flex items-center justify-between pb-3 border-b border-slate-200">
@@ -1163,13 +1196,13 @@ const DashboardView = React.memo(({
                     {/* CENTER COLUMN: Expanded canvas drawing area with responsive HTML/SVG interactive layer */}
                     <div className="flex-1 bg-white border border-slate-100 rounded-xl shadow-sm relative overflow-hidden flex flex-col justify-between min-h-0">
                       
-                      <div className="flex-1 relative overflow-hidden select-none">
+                      <div className="flex-1 relative overflow-auto select-none">
                         {/* Interactive Scale Transform Layer */}
                         <div 
                           className="absolute inset-0 transition-transform duration-300 origin-top-left"
                           style={{ transform: `scale(${graphZoom})`, width: '100%', height: '100%' }}
                         >
-                          <svg className="absolute inset-0 w-[820px] h-[580px] pointer-events-none z-0">
+                          <svg className="absolute inset-0 w-[820px] h-[750px] pointer-events-none z-0">
                             {/* Curved Sigmoidal S-connections */}
                             {graphEdges.map((edge) => {
                               const isHighlighted = highlightedEdgeIds.has(edge.id);
@@ -1194,7 +1227,7 @@ const DashboardView = React.memo(({
                           </svg>
 
                           {/* Absolute HTML-placed Nodes (Metric Cards) */}
-                          <div className="absolute inset-0 w-[820px] h-[580px] z-10 pointer-events-none">
+                          <div className="absolute inset-0 w-[820px] h-[750px] z-10 pointer-events-none">
                             {graphNodes.map((node) => {
                               const isSelected = selectedGraphNodeId === node.id;
                               const isHighlighted = highlightedNodeIds.has(node.id);
@@ -1402,35 +1435,7 @@ const DashboardView = React.memo(({
                     </div>
                   )}
 
-                  {/* Temporary Developer Debug Panel */}
-                  <div className="mt-8 bg-slate-900 rounded-xl border border-slate-700 shadow-sm overflow-hidden text-slate-300">
-                    <div 
-                      className="px-5 py-4 border-b border-slate-800 bg-slate-800/50 flex items-center justify-between cursor-pointer hover:bg-slate-800 transition-colors"
-                      onClick={() => setShowDebug(!showDebug)}
-                    >
-                      <h3 className="font-bold text-white flex items-center gap-2">
-                        <Database size={18} className="text-emerald-400" /> Developer Debug Information
-                      </h3>
-                      <span className="text-xs font-mono bg-slate-700 px-2 py-1 rounded text-slate-300">
-                        {showDebug ? 'Hide' : 'Show'}
-                      </span>
-                    </div>
-                    {showDebug && (
-                      <div className="p-5 overflow-x-auto">
-                        <pre className="text-xs font-mono text-emerald-400 leading-relaxed">
-                          {JSON.stringify({
-                            currency: knowledgeStore.metadata?.currency,
-                            reporting: knowledgeStore.metadata?.reporting,
-                            normalizedRevenue: knowledgeStore.financialData?.normalized?.revenue,
-                            normalizedNetIncome: knowledgeStore.financialData?.normalized?.netIncome,
-                            normalizedTotalAssets: knowledgeStore.financialData?.normalized?.totalAssets,
-                            normalizedTotalLiabilities: knowledgeStore.financialData?.normalized?.totalLiabilities,
-                            normalizedOperatingCashFlow: knowledgeStore.financialData?.normalized?.operatingCashFlow
-                          }, null, 2)}
-                        </pre>
-                      </div>
-                    )}
-                  </div>
+                  
                 </div>
               )}
 
@@ -1662,7 +1667,7 @@ const DashboardView = React.memo(({
       </div>
 
       {activeTab !== 'graph' && (
-        <div className="w-[45%] bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
+        <div className="w-[32%] min-w-[400px] h-full bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
           <div className="bg-slate-50 p-4 border-b border-slate-200 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="relative">
@@ -1672,15 +1677,18 @@ const DashboardView = React.memo(({
                 <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
               </div>
               <div>
-                <h3 className="font-semibold text-slate-900">Copilot Chat</h3>
-                <p className="text-xs text-slate-500 font-medium truncate max-w-[200px]">Context: {file?.name}</p>
+                <h3 className="text-[15px] font-bold text-slate-900">Copilot Chat</h3>
+                <p className="text-[11px] text-slate-500 font-medium truncate max-w-[170px]">Context: {file?.name}</p>
+              
               </div>
             </div>
             <span className="text-[10px] uppercase font-bold tracking-wider text-blue-600 bg-blue-100 px-2 py-1 rounded">Agent Active</span>
           </div>
 
           <div className="flex-1 p-6 overflow-y-auto bg-slate-50/50 custom-scrollbar flex flex-col gap-6">
-            {chatMessages.map((msg, idx) => (
+
+
+  {chatMessages.map((msg, idx) => (
               <div key={idx} className={`flex gap-4 max-w-[85%] ${msg.role === 'user' ? 'ml-auto flex-row-reverse' : ''}`}>
                 <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center mt-1 ${msg.role === 'user' ? 'bg-slate-800 text-white' : 'bg-blue-600 text-white'}`}>
                   {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
@@ -1690,7 +1698,9 @@ const DashboardView = React.memo(({
                     ? 'bg-slate-800 text-white rounded-tr-sm' 
                     : 'bg-white border border-slate-200 text-slate-800 rounded-tl-sm'
                 }`}>
-                  {msg.content}
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+    {msg.content}
+</ReactMarkdown>
                 </div>
               </div>
             ))}
@@ -1708,6 +1718,49 @@ const DashboardView = React.memo(({
           </div>
 
           <div className="p-4 bg-white border-t border-slate-200">
+            {chatMessages.length <= 1 && (
+    <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+      <div className="mb-3">
+  <h4 className="text-sm font-semibold text-slate-600 flex items-center gap-2">
+    💡 Suggested Questions
+  </h4>
+  <p className="text-xs text-slate-500 mt-1">
+    Click any question below to start exploring the report.
+  </p>
+</div>
+
+      <div className="grid grid-cols-2 gap-2">
+        {suggestedQuestions.map((question) => (
+          <button
+            key={question.text}
+            onClick={() => submitMessage(question.text)}
+            disabled={isChatting}
+            className="
+w-full
+text-left
+px-2.5
+py-1.5
+rounded-lg
+border
+border-slate-200
+bg-white
+hover:bg-blue-50
+hover:border-blue-300
+transition-all
+duration-200
+group
+"
+          >
+            
+            <span className="mr-2 text-base">{question.icon}</span>
+            <span className="text-xs font-medium text-slate-700 group-hover:text-blue-700">
+              {question.text}
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+  )}
             <form onSubmit={handleSendMessage} className="relative">
               <input
                 type="text"
@@ -2189,34 +2242,30 @@ const url =
         1. PRIORITIZE STRUCTURED DATA: Answer user questions using the PRIMARY KNOWLEDGE SOURCE JSON.
         2. SOURCE INDEX: Only retrieve a snippet from the 'sourceIndex' when the user asks to show the exact table, original text, where a number came from, page reference, or source evidence.
         3. EFFICIENCY: Provide highly concise, direct answers to reduce token generation and response latency.
-        4. Return strictly valid JSON.
-        5. Follow this JSON schema exactly:
-        {
-          "executiveSummary": "2-3 sentences summarizing the answer.",
-          "keyFindings": ["Finding 1", "Finding 2"],
-          "financialNarrative": [
-            {
-              "category": "Revenue | Profitability | Capital Structure | Liquidity | Cash Flow | Assets | Liabilities | Shareholder Returns | Strategy",
-              "status": "Improved | Declined | Stable",
-              "description": "Explanation using evidence from extracted data."
-            }
-          ],
-          "risks": [
-            { "severity": "High | Medium | Low", "title": "Risk title", "description": "Risk description" }
-          ],
-          "supportingEvidence": [
-            { "page": "Page number", "statement": "Financial Statement", "section": "Source Section" }
-          ],
-          "recommendation": "Concise conclusion and recommended action."
-        }
-        
-        6. Do not include markdown characters (like *, #, **) in the text strings.
-        7. Ensure the response is concise and executive-friendly.` }]
+        4. Respond using professional Markdown.
+
+5. Use the following structure:
+
+## Executive Summary
+
+## Key Findings
+
+## Financial Narrative
+
+## Risks
+
+## Supporting Evidence
+
+## Recommendation
+
+6. Use bullet points where appropriate.
+
+7. Do NOT return JSON.
+
+8. Answer only using the structured knowledge provided.
+
+9. Ensure the response is concise and executive-friendly.` }]
       },
-      {
-        role: "model",
-        parts: [{ text: `{"executiveSummary": "Understood. I will operate strictly as a Big 4 Senior Financial Analyst. I will use the mandated JSON schema and answer purely based on the structured data provided.", "keyFindings": ["Ready to analyze data.", "Awaiting user queries."], "financialNarrative": [], "risks": [], "supportingEvidence": [], "recommendation": "Please provide your query."}` }]
-      }
     ];
 
     newHistory.forEach(msg => {
@@ -2230,21 +2279,19 @@ const url =
       const data = await fetchWithRetry(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          contents: geminiContents,
-          generationConfig: { responseMimeType: "application/json" }
-        })
+        body: JSON.stringify({
+  contents: geminiContents
+})
       });
       const responseText = data.candidates[0].content.parts[0].text;
-      let parsedContent;
-      try {
-        parsedContent = cleanAndParseJSON(responseText);
-      } catch(e) {
-        parsedContent = responseText; 
-      }
-      setChatMessages(prev => [...prev, { role: 'assistant', content: parsedContent }]);
-    } catch (error) {
-      setChatMessages(prev => [...prev, { role: 'assistant', content: "Sorry, I encountered an error while processing your request. Please try again." }]);
+
+setChatMessages(prev => [
+  ...prev,
+  {
+    role: "assistant",
+    content: responseText
+  }
+]);
     } finally {
       setIsChatting(false);
     }
