@@ -187,7 +187,7 @@ MSc Data Science & Artificial Intelligence
 Middlesex University Dubai
 
 LinkedIn:
-(Add your LinkedIn)
+www.linkedin.com/in/tholkappian-ramasamy-2b5056221
 
 GitHub:
 https://github.com/tk-data-art
